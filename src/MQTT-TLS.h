@@ -55,6 +55,7 @@ sample code bearing this copyright.
 #include "spark_wiring_tcpclient.h"
 #include "spark_wiring_usbserial.h"
 
+#include <functional>
 
 #include "mbedtls/check_config.h"
 
@@ -115,6 +116,8 @@ typedef enum{
     MQTT_V311 = 4
 }MQTT_VERSION;
 
+typedef std::function<void(char*,uint8_t*,unsigned int)> CallbackF;
+
 private:
     TCPClient tcpClient;
 
@@ -123,7 +126,7 @@ private:
     unsigned long lastOutActivity;
     unsigned long lastInActivity;
     bool pingOutstanding;
-    void (*callback)(char*,uint8_t*,unsigned int);
+    CallbackF callback;
     void (*qoscallback)(unsigned int);
     uint16_t readPacket(uint8_t*);
     uint8_t readByte();
@@ -135,7 +138,7 @@ private:
     int keepalive;
     uint16_t maxpacketsize;
 
-    void initialize(char* domain, uint8_t *ip, uint16_t port, int keepalive, void (*callback)(char*,uint8_t*,unsigned int), int maxpacketsize);
+    void initialize(char* domain, uint8_t *ip, uint16_t port, int keepalive, CallbackF callback, int maxpacketsize);
     uint16_t netWrite(unsigned char *buff, int length);
     bool available();
 
@@ -176,6 +179,8 @@ public:
     MQTT(uint8_t *, uint16_t port, void (*callback)(char*,uint8_t*,unsigned int), int maxpacketsize);
     MQTT(uint8_t *, uint16_t port, int keepalive, void (*callback)(char*,uint8_t*,unsigned int));
     MQTT(uint8_t *, uint16_t port, int keepalive, void (*callback)(char*,uint8_t*,unsigned int), int maxpacketsize);
+    MQTT(char* domain, uint16_t port, int keepalive, CallbackF callback);
+    MQTT(uint8_t *ip, uint16_t port, int keepalive, CallbackF callback);
     ~MQTT();
 
     bool connect(const char *);

@@ -46,6 +46,16 @@ MQTT::MQTT(uint8_t *ip, uint16_t port, int keepalive, void (*callback)(char*,uin
     this->initialize(NULL, ip, port, keepalive, callback, maxpacketsize);
 }
 
+// std::function callbacks
+
+MQTT::MQTT(char* domain, uint16_t port, int keepalive, CallbackF callback) {
+   this->initialize(domain, NULL, port, keepalive, callback, MQTT_MAX_PACKET_SIZE);
+}
+
+MQTT::MQTT(uint8_t *ip, uint16_t port, int keepalive, CallbackF callback) {
+   this->initialize(NULL, ip, port, keepalive, callback, MQTT_MAX_PACKET_SIZE);
+}
+
 MQTT::~MQTT() {
     if (isConnected()) {
         disconnect();
@@ -53,7 +63,7 @@ MQTT::~MQTT() {
     }
 }
 
-void MQTT::initialize(char* domain, uint8_t *ip, uint16_t port, int keepalive, void (*callback)(char*,uint8_t*,unsigned int), int maxpacketsize) {
+void MQTT::initialize(char* domain, uint8_t *ip, uint16_t port, int keepalive, CallbackF callback, int maxpacketsize) {
     this->callback = callback;
     this->tls = false;
     this->tlsConnected = false;
